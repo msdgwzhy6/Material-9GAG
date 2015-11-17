@@ -1,4 +1,4 @@
-package com.spark.material9gag.ui;
+package com.spark.material9gag.ui.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -27,7 +27,7 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        RequestManager.INSTANCE.getRequestQueue(getApplicationContext()).cancelAll(this);
+        RequestManager.INSTANCE.getRequestQueue().cancelAll(this);
     }
 
 }

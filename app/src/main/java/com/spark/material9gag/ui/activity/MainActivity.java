@@ -1,4 +1,4 @@
-package com.spark.material9gag;
+package com.spark.material9gag.ui.activity;
 
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -10,7 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.spark.material9gag.ui.BaseActivity;
+import com.spark.material9gag.R;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;

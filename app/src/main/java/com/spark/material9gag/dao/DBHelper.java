@@ -15,9 +15,12 @@ public class DBHelper extends SQLiteOpenHelper {
     public DBHelper(Context context){
         super(context,DB_NAME,null,VERSION);
     }
+
+    //数据库第一次被创建时onCreate会被调用
     @Override
     public void onCreate(SQLiteDatabase db) {
-
+        db.execSQL("CREATE TABLE IF NOT EXISTS feeds" +
+                "(_id INTEGER PRIMARY KEY AUTOINCREMENT, category INTEGER,json TEXT)");
     }
 
     @Override

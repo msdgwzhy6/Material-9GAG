@@ -1,18 +1,54 @@
 package com.spark.material9gag.dao;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+
+import com.google.gson.Gson;
+import com.spark.material9gag.model.Category;
+import com.spark.material9gag.model.Feed;
+import com.spark.material9gag.model.FeedsDBInfo;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Daniel on 11/19/2015.
  */
 public class FeedsDataHelper extends BaseDataHelper {
 
-    public FeedsDataHelper(Context context){
+    private Category category;
+    public FeedsDataHelper(Context context,Category cat){
         super(context);
+        category = cat;
     }
     @Override
     protected Uri getContentUri() {
         return DataProvider.FEEDS_CONTENT_URI;
+    }
+
+    public void bulkInsert(List<Feed> feeds){
+        ArrayList<ContentValues> contentValuesList = new ArrayList<>();
+        for(Feed feed : feeds){
+            ContentValues values = new ContentValues();
+            values.put(FeedsDBInfo.ID, feed.getId());
+            values.put(FeedsDBInfo.CATEGORY, category.ordinal());
+            values.put(FeedsDBInfo.JSON, new Gson().toJson(feed));
+        }
+        ContentValues[] valuesArray = new ContentValues[contentValuesList.size()];
+        bulkInsert(contentValuesList.toArray(valuesArray));
+    }
+
+
+    public int deleteAll() {
+        synchronized (DataProvider.DBLock) {
+            DBHelper mDBHelper = DataProvider.dbHelper;
+            SQLiteDatabase db = mDBHelper.getWritableDatabase();
+            int row = db.delete(FeedsDBInfo.TABLE_NAME, FeedsDBInfo.CATEGORY + "=?", new String[] {
+                    String.valueOf(category.ordinal())
+            });
+            return row;
+        }
     }
 }

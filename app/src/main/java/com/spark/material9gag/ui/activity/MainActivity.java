@@ -2,6 +2,7 @@ package com.spark.material9gag.ui.activity;
 
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -11,6 +12,9 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.spark.material9gag.R;
+import com.spark.material9gag.model.Category;
+import com.spark.material9gag.ui.fragment.BaseFragment;
+import com.spark.material9gag.ui.fragment.FeedFragment;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -25,6 +29,7 @@ public class MainActivity extends BaseActivity
     @Bind(R.id.drawer_layout)
     DrawerLayout drawerLayout;
     ActionBarDrawerToggle toggle;
+    private FeedFragment contentFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +47,9 @@ public class MainActivity extends BaseActivity
             }
         };
         drawerLayout.setDrawerListener(toggle);
-
         navView.setNavigationItemSelectedListener(this);
+        contentFragment = FeedFragment.newInstance(Category.hot);
+        replaceFragment(R.id.content_main, contentFragment);
     }
 
     @Override
@@ -105,5 +111,10 @@ public class MainActivity extends BaseActivity
 
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    protected void replaceFragment(int viewId, BaseFragment fragment) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(viewId, fragment).commit();
     }
 }

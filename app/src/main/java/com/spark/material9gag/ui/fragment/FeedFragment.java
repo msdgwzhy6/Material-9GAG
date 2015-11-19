@@ -41,7 +41,7 @@ public class FeedFragment extends BaseFragment implements LoaderManager.LoaderCa
     ListView feedListView;
     private String page;
     private FeedsDataHelper feedsDataHelper;
-    private FeedsAdapter feedsAdapter = new FeedsAdapter(getActivity(),feedListView);
+    private FeedsAdapter feedsAdapter;
     Category category;
 
 
@@ -68,19 +68,19 @@ public class FeedFragment extends BaseFragment implements LoaderManager.LoaderCa
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_feed, container, false);
+        ButterKnife.bind(this, view);
 
         //get category
         Bundle bundle = getArguments();
         category = Category.valueOf(bundle.getString("categoryName"));
         feedsDataHelper = new FeedsDataHelper(App.getContext(), category);
-
+//        feedListView = (ListView)getActivity().findViewById(R.id.lv_feed);
         loadFirst();
         //TODO Adapter
+        feedsAdapter = new FeedsAdapter(getActivity(), feedListView);
         feedListView.setAdapter(feedsAdapter);
         //TODO Show
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_feed, container, false);
-        ButterKnife.bind(this, view);
 
         getLoaderManager().initLoader(0, null, this);
         return view;
@@ -93,7 +93,7 @@ public class FeedFragment extends BaseFragment implements LoaderManager.LoaderCa
 
     private void loadData(String next) {
         //request data from Internet
-        RequestManager.INSTANCE.getRequestQueue().add(new GsonRequest<>(String.format(GagApi.LIST, "Hot", next),
+        RequestManager.INSTANCE.getRequestQueue().add(new GsonRequest<>(String.format(GagApi.LIST, "hot", next),
                 Feed.FeedRequestData.class, null, new Response.Listener<Feed.FeedRequestData>() {
             final boolean isRefreshFromTop = ("0".equals(page));
 

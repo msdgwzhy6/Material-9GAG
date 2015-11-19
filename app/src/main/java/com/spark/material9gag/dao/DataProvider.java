@@ -9,7 +9,6 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.spark.material9gag.App;
@@ -27,7 +26,7 @@ public class DataProvider extends ContentProvider {
     public static final Uri FEEDS_CONTENT_URI = Uri.parse(SCHEME + AUTHORITY + "/" + PATH_FEEDS);
     public static final Object DBLock = new Object();
     private static final int FEEDS = 1;
-    public static DBHelper dbHelper = new DBHelper(App.getContext());
+    public static DBHelper dbHelper;
 
     /*
      * MIME type definitions
@@ -41,18 +40,26 @@ public class DataProvider extends ContentProvider {
         sUriMatcher.addURI(AUTHORITY, PATH_FEEDS, FEEDS);
     }
 
+    //for other class to call this method
+    public static DBHelper getDBHelper() {
+        if (dbHelper == null) {
+            dbHelper = new DBHelper(App.getContext());
+        }
+        return dbHelper;
+    }
+
     @Override
     public boolean onCreate() {
         return true;
     }
 
     @Override
-    public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    public Cursor query( Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         synchronized (DBLock) {
             SQLiteQueryBuilder sqLiteQueryBuilder = new SQLiteQueryBuilder();
             String table = matchTable(uri);
             sqLiteQueryBuilder.setTables(table);
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            SQLiteDatabase db = getDBHelper().getReadableDatabase();
             Cursor cursor = sqLiteQueryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
             //TODO why
             cursor.setNotificationUri(getContext().getContentResolver(), uri);
@@ -61,7 +68,7 @@ public class DataProvider extends ContentProvider {
     }
 
     @Override
-    public String getType(@NonNull Uri uri) {
+    public String getType( Uri uri) {
         switch (sUriMatcher.match(uri)) {
             case FEEDS:
                 return FEED_CONTENT_TYPE;
@@ -71,10 +78,10 @@ public class DataProvider extends ContentProvider {
     }
 
     @Override
-    public Uri insert(@NonNull Uri uri, ContentValues values) {
+    public Uri insert(Uri uri, ContentValues values) {
         synchronized (DBLock) {
             String table = matchTable(uri);
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            SQLiteDatabase db = getDBHelper().getWritableDatabase();
             long rowId = 0;
             db.beginTransaction();
             try {
@@ -99,9 +106,9 @@ public class DataProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
         synchronized (DBLock) {
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            SQLiteDatabase db = getDBHelper().getWritableDatabase();
 
             int count = 0;
             String table = matchTable(uri);
@@ -118,9 +125,9 @@ public class DataProvider extends ContentProvider {
     }
 
     @Override
-    public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+    public int update( Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         synchronized (DBLock) {
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            SQLiteDatabase db = getDBHelper().getWritableDatabase();
             String table = matchTable(uri);
             int count;
             db.beginTransaction();

@@ -36,6 +36,7 @@ public class FeedsDataHelper extends BaseDataHelper {
             values.put(FeedsDBInfo.ID, feed.getId());
             values.put(FeedsDBInfo.CATEGORY, category.ordinal());
             values.put(FeedsDBInfo.JSON, new Gson().toJson(feed));
+            contentValuesList.add(values);
         }
         ContentValues[] valuesArray = new ContentValues[contentValuesList.size()];
         bulkInsert(contentValuesList.toArray(valuesArray));
@@ -44,7 +45,7 @@ public class FeedsDataHelper extends BaseDataHelper {
 
     public int deleteAll() {
         synchronized (DataProvider.DBLock) {
-            DBHelper mDBHelper = DataProvider.dbHelper;
+            DBHelper mDBHelper = DataProvider.getDBHelper();
             SQLiteDatabase db = mDBHelper.getWritableDatabase();
             int row = db.delete(FeedsDBInfo.TABLE_NAME, FeedsDBInfo.CATEGORY + "=?", new String[] {
                     String.valueOf(category.ordinal())

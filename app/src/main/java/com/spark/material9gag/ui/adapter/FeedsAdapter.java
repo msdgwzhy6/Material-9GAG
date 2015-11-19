@@ -32,12 +32,12 @@ public class FeedsAdapter extends CursorAdapter {
     private static final int IMAGE_MAX_HEIGHT = 240;
     private Drawable mDefaultImageDrawable;
     private ListView mListView;
-    private Resources mResource;
+//    private Resources mResource;
     private LayoutInflater mLayoutInflater;
 
     public FeedsAdapter(Context context, ListView listView) {
         super(context, null, false);
-        mResource = context.getResources();
+//        mResource = context.getResources();
         mLayoutInflater = LayoutInflater.from(context);
         mListView = listView;
     }

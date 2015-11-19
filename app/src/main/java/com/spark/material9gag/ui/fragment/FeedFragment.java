@@ -2,11 +2,15 @@ package com.spark.material9gag.ui.fragment;
 
 
 import android.app.Fragment;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -18,20 +22,28 @@ import com.spark.material9gag.data.GsonRequest;
 import com.spark.material9gag.data.RequestManager;
 import com.spark.material9gag.model.Category;
 import com.spark.material9gag.model.Feed;
+import com.spark.material9gag.ui.adapter.FeedsAdapter;
 import com.spark.material9gag.util.TaskUtil;
 
 import java.util.ArrayList;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link FeedFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class FeedFragment extends BaseFragment {
+public class FeedFragment extends BaseFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    @Bind(R.id.lv_feed)
+    ListView feedListView;
     private String page;
     private FeedsDataHelper feedsDataHelper;
+    private FeedsAdapter feedsAdapter = new FeedsAdapter(getActivity(),feedListView);
     Category category;
+
 
     /**
      * Use this factory method to create a new instance of
@@ -43,7 +55,7 @@ public class FeedFragment extends BaseFragment {
     public static FeedFragment newInstance(Category category) {
         FeedFragment fragment = new FeedFragment();
         Bundle bundle = new Bundle();
-        bundle.putString("categoryName",category.name());
+        bundle.putString("categoryName", category.name());
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -60,12 +72,23 @@ public class FeedFragment extends BaseFragment {
         //get category
         Bundle bundle = getArguments();
         category = Category.valueOf(bundle.getString("categoryName"));
-        feedsDataHelper = new FeedsDataHelper(App.getContext(),category);
+        feedsDataHelper = new FeedsDataHelper(App.getContext(), category);
 
+        loadFirst();
         //TODO Adapter
+        feedListView.setAdapter(feedsAdapter);
         //TODO Show
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_feed, container, false);
+        View view = inflater.inflate(R.layout.fragment_feed, container, false);
+        ButterKnife.bind(this, view);
+
+        getLoaderManager().initLoader(0, null, this);
+        return view;
+    }
+
+    private void loadFirst() {
+        page = "0";
+        loadData(page);
     }
 
     private void loadData(String next) {
@@ -105,4 +128,28 @@ public class FeedFragment extends BaseFragment {
         }));
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return feedsDataHelper.getCursorLoader();
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        feedsAdapter.changeCursor(data);
+        if (data != null && data.getCount() == 0) {
+            loadFirst();
+        }
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        feedsAdapter.changeCursor(null);
+    }
 }

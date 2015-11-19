@@ -19,6 +19,10 @@ public abstract class BaseDataHelper {
         contentResolver = context.getContentResolver();
     }
 
+    public Context getContext() {
+        return context;
+    }
+
     protected abstract Uri getContentUri();
 
     protected Cursor query(String[] projection, String selection,

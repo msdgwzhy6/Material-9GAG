@@ -1,7 +1,6 @@
 package com.spark.material9gag.dao;
 
 import android.content.ContentProvider;
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
@@ -29,7 +28,6 @@ public class DataProvider extends ContentProvider {
     public static final Object DBLock = new Object();
     private static final int FEEDS = 1;
     public static DBHelper dbHelper = new DBHelper(App.getContext());
-    private ContentResolver contentResolver = getContext().getContentResolver();
 
     /*
      * MIME type definitions
@@ -57,7 +55,7 @@ public class DataProvider extends ContentProvider {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             Cursor cursor = sqLiteQueryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
             //TODO why
-            cursor.setNotificationUri(contentResolver, uri);
+            cursor.setNotificationUri(getContext().getContentResolver(), uri);
             return cursor;
         }
     }
@@ -89,7 +87,7 @@ public class DataProvider extends ContentProvider {
             }
             if (rowId > 0) {
                 Uri returnUri = ContentUris.withAppendedId(uri, rowId);
-                contentResolver.notifyChange(uri, null);
+                getContext().getContentResolver().notifyChange(uri, null);
                 return returnUri;
             }
             throw new SQLException("Failed to insert row into " + uri);
@@ -97,7 +95,7 @@ public class DataProvider extends ContentProvider {
     }
 
     public int bulkInsert(ContentValues[] values){
-        return contentResolver.bulkInsert(FEEDS_CONTENT_URI,values);
+        return getContext().getContentResolver().bulkInsert(FEEDS_CONTENT_URI,values);
     }
 
     @Override
@@ -114,7 +112,7 @@ public class DataProvider extends ContentProvider {
             } finally {
                 db.endTransaction();
             }
-            contentResolver.notifyChange(uri, null);
+            getContext().getContentResolver().notifyChange(uri, null);
             return count;
         }
     }
@@ -132,7 +130,7 @@ public class DataProvider extends ContentProvider {
             } finally {
                 db.endTransaction();
             }
-            contentResolver.notifyChange(uri, null);
+            getContext().getContentResolver().notifyChange(uri, null);
             return count;
         }
     }

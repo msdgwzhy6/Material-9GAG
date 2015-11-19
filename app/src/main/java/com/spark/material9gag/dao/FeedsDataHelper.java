@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.support.v4.content.CursorLoader;
 
 import com.google.gson.Gson;
 import com.spark.material9gag.model.Category;
@@ -50,5 +51,12 @@ public class FeedsDataHelper extends BaseDataHelper {
             });
             return row;
         }
+    }
+
+    public CursorLoader getCursorLoader() {
+        return new CursorLoader(getContext(), getContentUri(), null, FeedsDBInfo.CATEGORY + "=?",
+                new String[] {
+                        String.valueOf(category.ordinal())
+                }, FeedsDBInfo._ID + " ASC");
     }
 }

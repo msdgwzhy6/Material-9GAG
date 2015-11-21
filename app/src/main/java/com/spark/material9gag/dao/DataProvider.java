@@ -94,6 +94,7 @@ public class DataProvider extends ContentProvider {
             }
             if (rowId > 0) {
                 Uri returnUri = ContentUris.withAppendedId(uri, rowId);
+                //TODO why
                 getContext().getContentResolver().notifyChange(uri, null);
                 return returnUri;
             }

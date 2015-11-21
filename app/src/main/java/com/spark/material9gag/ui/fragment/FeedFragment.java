@@ -7,10 +7,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -23,6 +25,7 @@ import com.spark.material9gag.data.RequestManager;
 import com.spark.material9gag.model.Category;
 import com.spark.material9gag.model.Feed;
 import com.spark.material9gag.ui.adapter.FeedsAdapter;
+import com.spark.material9gag.ui.view.PageListView;
 import com.spark.material9gag.util.TaskUtil;
 
 import java.util.ArrayList;
@@ -35,14 +38,17 @@ import butterknife.ButterKnife;
  * Use the {@link FeedFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class FeedFragment extends BaseFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class FeedFragment extends BaseFragment implements LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener {
 
     @Bind(R.id.lv_feed)
-    ListView feedListView;
+    PageListView feedListView;
+    @Bind(R.id.swipe_container)
+    SwipeRefreshLayout swipeLayout;
     private String page;
     private FeedsDataHelper feedsDataHelper;
     private FeedsAdapter feedsAdapter;
     Category category;
+    private ProgressBar progressBar;
 
 
     /**
@@ -70,19 +76,30 @@ public class FeedFragment extends BaseFragment implements LoaderManager.LoaderCa
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_feed, container, false);
         ButterKnife.bind(this, view);
+        swipeLayout.setOnRefreshListener(this);
+        progressBar = new ProgressBar(getContext());
 
         //get category
         Bundle bundle = getArguments();
         category = Category.valueOf(bundle.getString("categoryName"));
         feedsDataHelper = new FeedsDataHelper(App.getContext(), category);
-//        feedListView = (ListView)getActivity().findViewById(R.id.lv_feed);
-        loadFirst();
+
         //TODO Adapter
         feedsAdapter = new FeedsAdapter(getActivity(), feedListView);
         feedListView.setAdapter(feedsAdapter);
+        progressBar.setIndeterminate(true);
+        feedListView.addFooterView(progressBar);
+//        progressBar.setVisibility(View.GONE);
+        feedListView.setLoadNextListener(new PageListView.OnLoadNextListener() {
+            @Override
+            public void onLoadNext() {
+                loadData(page);
+            }
+        });
         //TODO Show
-
         getLoaderManager().initLoader(0, null, this);
+        loadFirst();
+
         return view;
     }
 
@@ -107,6 +124,7 @@ public class FeedFragment extends BaseFragment implements LoaderManager.LoaderCa
                                                   }
                                                   page = response.getPage();
                                                   ArrayList<Feed> feeds = response.data;
+                                                  Log.d("FeedFragment", feeds.get(0).getCaption());
                                                   //write to db
                                                   feedsDataHelper.bulkInsert(feeds);
                                                   return null;
@@ -115,6 +133,7 @@ public class FeedFragment extends BaseFragment implements LoaderManager.LoaderCa
                                               @Override
                                               protected void onPostExecute(Void aVoid) {
                                                   super.onPostExecute(aVoid);
+                                                  swipeLayout.setRefreshing(false);
                                                   //TODO LoadingFooter
                                               }
                                           }
@@ -123,7 +142,8 @@ public class FeedFragment extends BaseFragment implements LoaderManager.LoaderCa
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
-
+                Log.e("FeedFragment","VolleyError" + volleyError.toString());
+                swipeLayout.setRefreshing(false);
             }
         }));
     }
@@ -146,6 +166,11 @@ public class FeedFragment extends BaseFragment implements LoaderManager.LoaderCa
             loadFirst();
         }
 
+    }
+
+    @Override
+    public void onRefresh() {
+        loadFirst();
     }
 
     @Override

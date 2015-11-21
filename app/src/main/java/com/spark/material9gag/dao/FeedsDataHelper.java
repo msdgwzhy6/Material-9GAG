@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.v4.content.CursorLoader;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.spark.material9gag.model.Category;
@@ -50,6 +51,7 @@ public class FeedsDataHelper extends BaseDataHelper {
             int row = db.delete(FeedsDBInfo.TABLE_NAME, FeedsDBInfo.CATEGORY + "=?", new String[] {
                     String.valueOf(category.ordinal())
             });
+            Log.d("FeedsDataHelper",String.valueOf(row));
             return row;
         }
     }

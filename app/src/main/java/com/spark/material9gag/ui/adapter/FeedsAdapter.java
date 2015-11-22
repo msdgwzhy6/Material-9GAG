@@ -1,7 +1,6 @@
 package com.spark.material9gag.ui.adapter;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
@@ -40,6 +39,12 @@ public class FeedsAdapter extends CursorAdapter {
 //        mResource = context.getResources();
         mLayoutInflater = LayoutInflater.from(context);
         mListView = listView;
+    }
+
+    @Override
+    public Feed getItem(int position) {
+        getCursor().moveToPosition(position);
+        return Feed.fromCursor(getCursor());
     }
 
     @Override

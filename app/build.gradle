@@ -27,4 +27,5 @@ dependencies {
     compile files('libs/volley.jar')
     compile 'com.google.code.gson:gson:2.4'
     compile files('libs/universal-image-loader-1.9.4.jar')
+    compile 'com.commit451:PhotoView:1.2.4'
 }

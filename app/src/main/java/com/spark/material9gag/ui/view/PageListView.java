@@ -11,6 +11,7 @@ import android.widget.ListView;
 public class PageListView extends ListView implements AbsListView.OnScrollListener {
 
     private OnLoadNextListener mLoadNextListener;
+    public static boolean isLoading = false;
     public PageListView(Context context) {
         super(context);
         setOnScrollListener(this);
@@ -35,8 +36,8 @@ public class PageListView extends ListView implements AbsListView.OnScrollListen
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
         if (firstVisibleItem + visibleItemCount >= totalItemCount
                 && totalItemCount != 0
-                && totalItemCount != getHeaderViewsCount()
-                + getFooterViewsCount()  && mLoadNextListener != null) {
+                && mLoadNextListener != null && !isLoading) {
+            isLoading = true;
             mLoadNextListener.onLoadNext();
         }
     }
@@ -44,7 +45,7 @@ public class PageListView extends ListView implements AbsListView.OnScrollListen
         mLoadNextListener = listener;
     }
     public interface OnLoadNextListener {
-        public void onLoadNext();
+        void onLoadNext();
     }
 
 }

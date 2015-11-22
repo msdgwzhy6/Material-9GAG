@@ -2,6 +2,7 @@ package com.spark.material9gag.ui.fragment;
 
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,11 +13,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ProgressBar;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.spark.material9gag.App;
+import com.spark.material9gag.PicDetailActivity;
 import com.spark.material9gag.R;
 import com.spark.material9gag.api.GagApi;
 import com.spark.material9gag.dao.FeedsDataHelper;
@@ -87,9 +90,17 @@ public class FeedFragment extends BaseFragment implements LoaderManager.LoaderCa
         //TODO Adapter
         feedsAdapter = new FeedsAdapter(getActivity(), feedListView);
         feedListView.setAdapter(feedsAdapter);
+        feedListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String imgUrl = feedsAdapter.getItem(position).getImages().large;
+                Intent intent = new Intent(getActivity(), PicDetailActivity.class);
+                intent.putExtra("IMAGE_URL",imgUrl);
+                startActivity(intent);
+            }
+        });
         progressBar.setIndeterminate(true);
         feedListView.addFooterView(progressBar);
-//        progressBar.setVisibility(View.GONE);
         feedListView.setLoadNextListener(new PageListView.OnLoadNextListener() {
             @Override
             public void onLoadNext() {
@@ -134,7 +145,7 @@ public class FeedFragment extends BaseFragment implements LoaderManager.LoaderCa
                                               protected void onPostExecute(Void aVoid) {
                                                   super.onPostExecute(aVoid);
                                                   swipeLayout.setRefreshing(false);
-                                                  //TODO LoadingFooter
+                                                  PageListView.isLoading = false;
                                               }
                                           }
                 );
